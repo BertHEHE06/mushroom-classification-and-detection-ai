@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D6D0C4"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- ── Header ── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="🍄"
+                android:textSize="22sp"
+                android:gravity="center"
+                android:background="@drawable/bg_icon"
+                android:layout_marginEnd="12dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mushroom AI"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mushroom Identification"
+                    android:textSize="12sp"
+                    android:textColor="#6B6B62"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Gambar Asli ── -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ORIGINAL IMAGE"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#6B6B62"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Container gambar + bounding box -->
+        <FrameLayout
+            android:id="@+id/frameImage"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@drawable/bg_card"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/ivOriginal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_placeholder"/>
+
+            <!-- Bounding box overlay (drawn via canvas di MainActivity) -->
+            <com.hehe.mushroom_app_v3.BoundingBoxOverlay
+                android:id="@+id/boundingBoxOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/layoutEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🍄"
+                    android:textSize="48sp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No Image Selected"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A18"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Capture a photo or choose one from the gallery"
+                    android:textSize="12sp"
+                    android:textColor="#6B6B62"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ── Area Terdeteksi (Crop) ── -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DETECTED AREA (YOLO)"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#6B6B62"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@drawable/bg_card"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/ivCropped"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvNoDetection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="⚠️ Mushroom Not Detected"
+                android:textSize="13sp"
+                android:textColor="#B8860B"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/layoutCropEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="..."
+                    android:textSize="12sp"
+                    android:textColor="#6B6B62"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ── Loading ── -->
+        <LinearLayout
+            android:id="@+id/layoutLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_card"
+            android:padding="24dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:indeterminateTint="#6B7260"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Analyzing image..."
+                android:textSize="13sp"
+                android:textColor="#6B6B62"
+                android:layout_marginTop="12dp"/>
+        </LinearLayout>
+
+        <!-- ── Error ── -->
+        <LinearLayout
+            android:id="@+id/layoutError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_error"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠️ "
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tvError"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="#9B3030"/>
+        </LinearLayout>
+
+        <!-- ── Hasil Analisis ── -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ANALYSIS RESULT"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#6B6B62"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Status Card -->
+        <LinearLayout
+            android:id="@+id/layoutResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/cardStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/tvStatusIcon"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:text="✅"
+                    android:textSize="26sp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_icon_status"
+                    android:layout_marginEnd="14dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBinaryLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="EDIBLE"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="#6B7260"/>
+
+                    <TextView
+                        android:id="@+id/tvBinaryDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Safe to consume"
+                        android:textSize="12sp"
+                        android:textColor="#6B6B62"
+                        android:layout_marginTop="2dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBinaryConf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="99%"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#6B7260"
+                    android:background="@drawable/bg_badge"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"/>
+            </LinearLayout>
+
+            <!-- Species Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SPECIES"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#6B6B62"
+                    android:letterSpacing="0.15"/>
+
+                <TextView
+                    android:id="@+id/tvSpecies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textSize="16sp"
+                    android:textStyle="bold|italic"
+                    android:textColor="#1A1A18"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Species Confidence"
+                    android:textSize="11sp"
+                    android:textColor="#6B6B62"/>
+
+                <ProgressBar
+                    android:id="@+id/progressSpecies"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="6dp"
+                    android:progressTint="#8F9779"
+                    android:progressBackgroundTint="#C2BAB0"
+                    android:max="100"
+                    android:progress="0"/>
+
+                <TextView
+                    android:id="@+id/tvSpeciesConf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#6B7260"
+                    android:layout_marginTop="4dp"/>
+
+                <!-- ── Divider ── -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#C2BAB0"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- ── Ciri-ciri ── -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="KEY CHARACTERISTICS"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#6B6B62"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutCharacteristics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Tombol ── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btnCamera"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="📷  Camera"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="#6B7260"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnGallery"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:text="🖼  Gallery"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:backgroundTint="#8F9779"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
